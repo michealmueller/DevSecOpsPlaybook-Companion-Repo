@@ -1,0 +1,198 @@
+# Semgrep Configuration for DevSecOps Security Scanning
+# This configuration includes comprehensive security rules for static analysis
+
+rules:
+  # OWASP Top 10 Security Rules
+  - id: owasp-a01-broken-access-control
+    patterns:
+      - pattern-either:
+          - pattern: $USER.isAdmin()
+          - pattern: $USER.hasRole("admin")
+    message: "Potential broken access control - direct privilege check without proper authorization"
+    languages: [python, javascript, java, csharp]
+    severity: WARNING
+
+  - id: owasp-a02-cryptographic-failures
+    patterns:
+      - pattern-either:
+          - pattern: md5(...)
+          - pattern: sha1(...)
+          - pattern: "DES"
+          - pattern: "RC4"
+    message: "Weak cryptographic algorithm detected. Use stronger alternatives like SHA-256, AES-256"
+    languages: [python, javascript, java, csharp]
+    severity: ERROR
+
+  - id: owasp-a03-injection
+    patterns:
+      - pattern-either:
+          - pattern: f"SELECT * FROM {table} WHERE id = {id}"
+          - pattern: f"INSERT INTO {table} VALUES ({values})"
+          - pattern: eval($EXPR)
+          - pattern: exec($EXPR)
+    message: "Potential SQL injection or code injection vulnerability"
+    languages: [python, javascript, java, csharp]
+    severity: ERROR
+
+  - id: owasp-a04-insecure-design
+    patterns:
+      - pattern-either:
+          - pattern: "http://..."
+          - pattern: "ftp://..."
+    message: "Insecure protocol detected. Use HTTPS/FTPS for secure communication"
+    languages: [python, javascript, java, csharp]
+    severity: WARNING
+
+  - id: owasp-a05-security-misconfiguration
+    patterns:
+      - pattern-either:
+          - pattern: debug=True
+          - pattern: "DEBUG = true"
+          - pattern: "production = false"
+    message: "Debug mode enabled in production configuration"
+    languages: [python, javascript, java, csharp]
+    severity: ERROR
+
+  - id: owasp-a06-vulnerable-components
+    patterns:
+      - pattern-either:
+          - pattern: "jquery@1.0.0"
+          - pattern: "lodash@3.0.0"
+    message: "Outdated vulnerable component detected"
+    languages: [javascript, json, yaml]
+    severity: WARNING
+
+  - id: owasp-a07-identification-authentication-failures
+    patterns:
+      - pattern-either:
+          - pattern: password = $PASS
+          - pattern: "admin/admin"
+          - pattern: "root/root"
+    message: "Weak or hardcoded credentials detected"
+    languages: [python, javascript, java, csharp]
+    severity: ERROR
+
+  - id: owasp-a08-software-data-integrity-failures
+    patterns:
+      - pattern-either:
+          - pattern: "http://registry.npmjs.org"
+          - pattern: "http://pypi.org"
+    message: "Insecure package registry URL detected"
+    languages: [yaml, json, python, javascript]
+    severity: WARNING
+
+  - id: owasp-a09-logging-monitoring-failures
+    patterns:
+      - pattern-either:
+          - pattern: print($SENSITIVE)
+          - pattern: console.log($SENSITIVE)
+          - pattern: logger.info($SENSITIVE)
+    message: "Potential sensitive data logging"
+    languages: [python, javascript, java, csharp]
+    severity: WARNING
+
+  - id: owasp-a10-server-side-request-forgery
+    patterns:
+      - pattern-either:
+          - pattern: requests.get($URL)
+          - pattern: urllib.request.urlopen($URL)
+          - pattern: fetch($URL)
+    message: "Potential SSRF vulnerability - validate and sanitize URLs"
+    languages: [python, javascript, java, csharp]
+    severity: WARNING
+
+  # Secrets Detection Rules
+  - id: secrets-aws-access-key
+    patterns:
+      - pattern-regex: 'AKIA[0-9A-Z]{16}'
+    message: "AWS Access Key ID detected"
+    languages: [generic]
+    severity: ERROR
+
+  - id: secrets-aws-secret-key
+    patterns:
+      - pattern-regex: '[a-zA-Z0-9/+=]{40}'
+    message: "Potential AWS Secret Access Key detected"
+    languages: [generic]
+    severity: ERROR
+
+  - id: secrets-github-token
+    patterns:
+      - pattern-regex: 'ghp_[a-zA-Z0-9]{36}'
+    message: "GitHub Personal Access Token detected"
+    languages: [generic]
+    severity: ERROR
+
+  - id: secrets-api-key
+    patterns:
+      - pattern-regex: '(?i)(api[_-]?key|apikey|secret[_-]?key|private[_-]?key)\\s*[:=]\\s*[\'"][a-zA-Z0-9_-]{20,}[\'"]'
+    message: "Potential API key detected"
+    languages: [generic]
+    severity: WARNING
+
+  - id: secrets-database-url
+    patterns:
+      - pattern-regex: '(?i)(mongodb|postgresql|mysql)://[^:]+:[^@]+@'
+    message: "Database connection string with credentials detected"
+    languages: [generic]
+    severity: ERROR
+
+  # DevSecOps Specific Rules
+  - id: devsecops-hardcoded-secrets
+    patterns:
+      - pattern-either:
+          - pattern: "password = \"...\""
+          - pattern: "api_key = \"...\""
+          - pattern: "secret = \"...\""
+    message: "Hardcoded secret detected - use environment variables or secrets management"
+    languages: [python, javascript, java, csharp]
+    severity: ERROR
+
+  - id: devsecops-insecure-docker
+    patterns:
+      - pattern-either:
+          - pattern: "FROM alpine:latest"
+          - pattern: "USER root"
+          - pattern: "RUN apt-get update"
+    message: "Insecure Docker configuration detected"
+    languages: [dockerfile]
+    severity: WARNING
+
+  - id: devsecops-insecure-terraform
+    patterns:
+      - pattern-either:
+          - pattern: "provider \"aws\" { access_key = \"...\" }"
+          - pattern: "provider \"aws\" { secret_key = \"...\" }"
+    message: "Hardcoded AWS credentials in Terraform configuration"
+    languages: [hcl]
+    severity: ERROR
+
+  - id: devsecops-k8s-security-context
+    patterns:
+      - pattern-either:
+          - pattern: "runAsUser: 0"
+          - pattern: "runAsRoot: true"
+          - pattern: "privileged: true"
+    message: "Insecure Kubernetes security context detected"
+    languages: [yaml]
+    severity: WARNING
+
+  # CI/CD Security Rules
+  - id: cicd-secrets-in-workflow
+    patterns:
+      - pattern-either:
+          - pattern: "password: \"...\""
+          - pattern: "token: \"...\""
+          - pattern: "key: \"...\""
+    message: "Hardcoded secrets in CI/CD workflow detected"
+    languages: [yaml]
+    severity: ERROR
+
+  - id: cicd-insecure-script
+    patterns:
+      - pattern-either:
+          - pattern: "curl | bash"
+          - pattern: "wget | bash"
+    message: "Insecure script execution pattern detected"
+    languages: [yaml, bash]
+    severity: WARNING

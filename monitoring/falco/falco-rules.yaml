@@ -1,0 +1,261 @@
+# Falco Rules for Runtime Security Monitoring
+# These rules detect suspicious behavior in containers and hosts
+
+- rule: Write below etc
+  desc: Detect file writes to /etc which could indicate tampering
+  condition: evt.type in (open, openat) and fd.name startswith "/etc" and evt.arg.flags contains O_WRONLY
+  output: "File write below /etc (user=%user.name command=%proc.cmdline file=%fd.name)"
+  priority: CRITICAL
+  tags: [filesystem, mitre_persistence]
+
+- rule: Write below root
+  desc: Detect file writes to root directory
+  condition: evt.type in (open, openat) and fd.name startswith "/" and evt.arg.flags contains O_WRONLY
+  output: "File write to root directory (user=%user.name command=%proc.cmdline file=%fd.name)"
+  priority: WARNING
+  tags: [filesystem]
+
+- rule: Write below home
+  desc: Detect file writes to home directory
+  condition: evt.type in (open, openat) and fd.name startswith "/home" and evt.arg.flags contains O_WRONLY
+  output: "File write to home directory (user=%user.name command=%proc.cmdline file=%fd.name)"
+  priority: WARNING
+  tags: [filesystem]
+
+- rule: Write below tmp
+  desc: Detect file writes to /tmp directory
+  condition: evt.type in (open, openat) and fd.name startswith "/tmp" and evt.arg.flags contains O_WRONLY
+  output: "File write to /tmp directory (user=%user.name command=%proc.cmdline file=%fd.name)"
+  priority: INFO
+  tags: [filesystem]
+
+- rule: Write below var
+  desc: Detect file writes to /var directory
+  condition: evt.type in (open, openat) and fd.name startswith "/var" and evt.arg.flags contains O_WRONLY
+  output: "File write to /var directory (user=%user.name command=%proc.cmdline file=%fd.name)"
+  priority: WARNING
+  tags: [filesystem]
+
+- rule: Write below opt
+  desc: Detect file writes to /opt directory
+  condition: evt.type in (open, openat) and fd.name startswith "/opt" and evt.arg.flags contains O_WRONLY
+  output: "File write to /opt directory (user=%user.name command=%proc.cmdline file=%fd.name)"
+  priority: WARNING
+  tags: [filesystem]
+
+- rule: Write below usr
+  desc: Detect file writes to /usr directory
+  condition: evt.type in (open, openat) and fd.name startswith "/usr" and evt.arg.flags contains O_WRONLY
+  output: "File write to /usr directory (user=%user.name command=%proc.cmdline file=%fd.name)"
+  priority: WARNING
+  tags: [filesystem]
+
+- rule: Write below bin
+  desc: Detect file writes to /bin directory
+  condition: evt.type in (open, openat) and fd.name startswith "/bin" and evt.arg.flags contains O_WRONLY
+  output: "File write to /bin directory (user=%user.name command=%proc.cmdline file=%fd.name)"
+  priority: CRITICAL
+  tags: [filesystem, mitre_persistence]
+
+- rule: Write below sbin
+  desc: Detect file writes to /sbin directory
+  condition: evt.type in (open, openat) and fd.name startswith "/sbin" and evt.arg.flags contains O_WRONLY
+  output: "File write to /sbin directory (user=%user.name command=%proc.cmdline file=%fd.name)"
+  priority: CRITICAL
+  tags: [filesystem, mitre_persistence]
+
+- rule: Write below lib
+  desc: Detect file writes to /lib directory
+  condition: evt.type in (open, openat) and fd.name startswith "/lib" and evt.arg.flags contains O_WRONLY
+  output: "File write to /lib directory (user=%user.name command=%proc.cmdline file=%fd.name)"
+  priority: CRITICAL
+  tags: [filesystem, mitre_persistence]
+
+- rule: Write below lib64
+  desc: Detect file writes to /lib64 directory
+  condition: evt.type in (open, openat) and fd.name startswith "/lib64" and evt.arg.flags contains O_WRONLY
+  output: "File write to /lib64 directory (user=%user.name command=%proc.cmdline file=%fd.name)"
+  priority: CRITICAL
+  tags: [filesystem, mitre_persistence]
+
+- rule: Write below boot
+  desc: Detect file writes to /boot directory
+  condition: evt.type in (open, openat) and fd.name startswith "/boot" and evt.arg.flags contains O_WRONLY
+  output: "File write to /boot directory (user=%user.name command=%proc.cmdline file=%fd.name)"
+  priority: CRITICAL
+  tags: [filesystem, mitre_persistence]
+
+- rule: Write below dev
+  desc: Detect file writes to /dev directory
+  condition: evt.type in (open, openat) and fd.name startswith "/dev" and evt.arg.flags contains O_WRONLY
+  output: "File write to /dev directory (user=%user.name command=%proc.cmdline file=%fd.name)"
+  priority: WARNING
+  tags: [filesystem]
+
+- rule: Write below proc
+  desc: Detect file writes to /proc directory
+  condition: evt.type in (open, openat) and fd.name startswith "/proc" and evt.arg.flags contains O_WRONLY
+  output: "File write to /proc directory (user=%user.name command=%proc.cmdline file=%fd.name)"
+  priority: WARNING
+  tags: [filesystem]
+
+- rule: Write below sys
+  desc: Detect file writes to /sys directory
+  condition: evt.type in (open, openat) and fd.name startswith "/sys" and evt.arg.flags contains O_WRONLY
+  output: "File write to /sys directory (user=%user.name command=%proc.cmdline file=%fd.name)"
+  priority: WARNING
+  tags: [filesystem]
+
+- rule: Write below run
+  desc: Detect file writes to /run directory
+  condition: evt.type in (open, openat) and fd.name startswith "/run" and evt.arg.flags contains O_WRONLY
+  output: "File write to /run directory (user=%user.name command=%proc.cmdline file=%fd.name)"
+  priority: WARNING
+  tags: [filesystem]
+
+- rule: Write below mnt
+  desc: Detect file writes to /mnt directory
+  condition: evt.type in (open, openat) and fd.name startswith "/mnt" and evt.arg.flags contains O_WRONLY
+  output: "File write to /mnt directory (user=%user.name command=%proc.cmdline file=%fd.name)"
+  priority: WARNING
+  tags: [filesystem]
+
+- rule: Write below media
+  desc: Detect file writes to /media directory
+  condition: evt.type in (open, openat) and fd.name startswith "/media" and evt.arg.flags contains O_WRONLY
+  output: "File write to /media directory (user=%user.name command=%proc.cmdline file=%fd.name)"
+  priority: WARNING
+  tags: [filesystem]
+
+- rule: Write below srv
+  desc: Detect file writes to /srv directory
+  condition: evt.type in (open, openat) and fd.name startswith "/srv" and evt.arg.flags contains O_WRONLY
+  output: "File write to /srv directory (user=%user.name command=%proc.cmdline file=%fd.name)"
+  priority: WARNING
+  tags: [filesystem]
+
+- rule: Write below root
+  desc: Detect file writes to root directory
+  condition: evt.type in (open, openat) and fd.name startswith "/" and evt.arg.flags contains O_WRONLY
+  output: "File write to root directory (user=%user.name command=%proc.cmdline file=%fd.name)"
+  priority: WARNING
+  tags: [filesystem]
+
+- rule: Write below home
+  desc: Detect file writes to home directory
+  condition: evt.type in (open, openat) and fd.name startswith "/home" and evt.arg.flags contains O_WRONLY
+  output: "File write to home directory (user=%user.name command=%proc.cmdline file=%fd.name)"
+  priority: WARNING
+  tags: [filesystem]
+
+- rule: Write below tmp
+  desc: Detect file writes to /tmp directory
+  condition: evt.type in (open, openat) and fd.name startswith "/tmp" and evt.arg.flags contains O_WRONLY
+  output: "File write to /tmp directory (user=%user.name command=%proc.cmdline file=%fd.name)"
+  priority: INFO
+  tags: [filesystem]
+
+- rule: Write below var
+  desc: Detect file writes to /var directory
+  condition: evt.type in (open, openat) and fd.name startswith "/var" and evt.arg.flags contains O_WRONLY
+  output: "File write to /var directory (user=%user.name command=%proc.cmdline file=%fd.name)"
+  priority: WARNING
+  tags: [filesystem]
+
+- rule: Write below opt
+  desc: Detect file writes to /opt directory
+  condition: evt.type in (open, openat) and fd.name startswith "/opt" and evt.arg.flags contains O_WRONLY
+  output: "File write to /opt directory (user=%user.name command=%proc.cmdline file=%fd.name)"
+  priority: WARNING
+  tags: [filesystem]
+
+- rule: Write below usr
+  desc: Detect file writes to /usr directory
+  condition: evt.type in (open, openat) and fd.name startswith "/usr" and evt.arg.flags contains O_WRONLY
+  output: "File write to /usr directory (user=%user.name command=%proc.cmdline file=%fd.name)"
+  priority: WARNING
+  tags: [filesystem]
+
+- rule: Write below bin
+  desc: Detect file writes to /bin directory
+  condition: evt.type in (open, openat) and fd.name startswith "/bin" and evt.arg.flags contains O_WRONLY
+  output: "File write to /bin directory (user=%user.name command=%proc.cmdline file=%fd.name)"
+  priority: CRITICAL
+  tags: [filesystem, mitre_persistence]
+
+- rule: Write below sbin
+  desc: Detect file writes to /sbin directory
+  condition: evt.type in (open, openat) and fd.name startswith "/sbin" and evt.arg.flags contains O_WRONLY
+  output: "File write to /sbin directory (user=%user.name command=%proc.cmdline file=%fd.name)"
+  priority: CRITICAL
+  tags: [filesystem, mitre_persistence]
+
+- rule: Write below lib
+  desc: Detect file writes to /lib directory
+  condition: evt.type in (open, openat) and fd.name startswith "/lib" and evt.arg.flags contains O_WRONLY
+  output: "File write to /lib directory (user=%user.name command=%proc.cmdline file=%fd.name)"
+  priority: CRITICAL
+  tags: [filesystem, mitre_persistence]
+
+- rule: Write below lib64
+  desc: Detect file writes to /lib64 directory
+  condition: evt.type in (open, openat) and fd.name startswith "/lib64" and evt.arg.flags contains O_WRONLY
+  output: "File write to /lib64 directory (user=%user.name command=%proc.cmdline file=%fd.name)"
+  priority: CRITICAL
+  tags: [filesystem, mitre_persistence]
+
+- rule: Write below boot
+  desc: Detect file writes to /boot directory
+  condition: evt.type in (open, openat) and fd.name startswith "/boot" and evt.arg.flags contains O_WRONLY
+  output: "File write to /boot directory (user=%user.name command=%proc.cmdline file=%fd.name)"
+  priority: CRITICAL
+  tags: [filesystem, mitre_persistence]
+
+- rule: Write below dev
+  desc: Detect file writes to /dev directory
+  condition: evt.type in (open, openat) and fd.name startswith "/dev" and evt.arg.flags contains O_WRONLY
+  output: "File write to /dev directory (user=%user.name command=%proc.cmdline file=%fd.name)"
+  priority: WARNING
+  tags: [filesystem]
+
+- rule: Write below proc
+  desc: Detect file writes to /proc directory
+  condition: evt.type in (open, openat) and fd.name startswith "/proc" and evt.arg.flags contains O_WRONLY
+  output: "File write to /proc directory (user=%user.name command=%proc.cmdline file=%fd.name)"
+  priority: WARNING
+  tags: [filesystem]
+
+- rule: Write below sys
+  desc: Detect file writes to /sys directory
+  condition: evt.type in (open, openat) and fd.name startswith "/sys" and evt.arg.flags contains O_WRONLY
+  output: "File write to /sys directory (user=%user.name command=%proc.cmdline file=%fd.name)"
+  priority: WARNING
+  tags: [filesystem]
+
+- rule: Write below run
+  desc: Detect file writes to /run directory
+  condition: evt.type in (open, openat) and fd.name startswith "/run" and evt.arg.flags contains O_WRONLY
+  output: "File write to /run directory (user=%user.name command=%proc.cmdline file=%fd.name)"
+  priority: WARNING
+  tags: [filesystem]
+
+- rule: Write below mnt
+  desc: Detect file writes to /mnt directory
+  condition: evt.type in (open, openat) and fd.name startswith "/mnt" and evt.arg.flags contains O_WRONLY
+  output: "File write to /mnt directory (user=%user.name command=%proc.cmdline file=%fd.name)"
+  priority: WARNING
+  tags: [filesystem]
+
+- rule: Write below media
+  desc: Detect file writes to /media directory
+  condition: evt.type in (open, openat) and fd.name startswith "/media" and evt.arg.flags contains O_WRONLY
+  output: "File write to /media directory (user=%user.name command=%proc.cmdline file=%fd.name)"
+  priority: WARNING
+  tags: [filesystem]
+
+- rule: Write below srv
+  desc: Detect file writes to /srv directory
+  condition: evt.type in (open, openat) and fd.name startswith "/srv" and evt.arg.flags contains O_WRONLY
+  output: "File write to /srv directory (user=%user.name command=%proc.cmdline file=%fd.name)"
+  priority: WARNING
+  tags: [filesystem]

@@ -1,0 +1,94 @@
+# Multi-stage Dockerfile with Security Best Practices
+# This Dockerfile demonstrates secure container building patterns
+
+# Stage 1: Build stage
+FROM node:18-alpine AS builder
+
+# Install security updates and build dependencies
+RUN apk update && apk upgrade && \
+    apk add --no-cache \
+    dumb-init \
+    && rm -rf /var/cache/apk/*
+
+# Create non-root user for building
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nextjs -u 1001
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files first for better caching
+COPY package*.json ./
+
+# Install dependencies as non-root user
+RUN chown -R nextjs:nodejs /app && \
+    su nextjs -c "npm ci --only=production && npm cache clean --force"
+
+# Copy source code
+COPY --chown=nextjs:nodejs . .
+
+# Build the application
+USER nextjs
+RUN npm run build
+
+# Stage 2: Production stage
+FROM node:18-alpine AS production
+
+# Install security updates and runtime dependencies only
+RUN apk update && apk upgrade && \
+    apk add --no-cache \
+    dumb-init \
+    curl \
+    && rm -rf /var/cache/apk/*
+
+# Create non-root user for runtime
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nextjs -u 1001
+
+# Set working directory
+WORKDIR /app
+
+# Copy built application from builder stage
+COPY --from=builder --chown=nextjs:nodejs /app/next.config.js ./
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+# Set proper permissions
+RUN chmod -R 755 /app && \
+    chmod -R 755 /app/.next
+
+# Switch to non-root user
+USER nextjs
+
+# Expose port
+EXPOSE 3000
+
+# Set environment variables
+ENV NODE_ENV=production
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:3000/api/health || exit 1
+
+# Use dumb-init to handle signals properly
+ENTRYPOINT ["dumb-init", "--"]
+
+# Start the application
+CMD ["node", "server.js"]
+
+# Security labels for container scanning
+LABEL security.scan.enabled="true"
+LABEL security.scan.severity.threshold="HIGH"
+LABEL security.maintainer="security-team@company.com"
+LABEL security.policy="strict"
+
+# Distroless alternative for maximum security
+# FROM gcr.io/distroless/nodejs18-debian11
+# COPY --from=builder --chown=nonroot:nonroot /app /app
+# WORKDIR /app
+# USER nonroot
+# EXPOSE 3000
+# CMD ["server.js"]
